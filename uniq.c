@@ -23,6 +23,7 @@
  */
 
 #define _XOPEN_SOURCE 700
+#include <ctype.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <limits.h>
@@ -61,10 +62,43 @@ static void print_line(FILE *out, const char *line, uintmax_t count, unsigned in
 	fprintf(out, "%s", line);
 }
 
-int are_duplicates(const char *s1, const char *s2, size_t fields, size_t chars)
+static char *skip_fields(const char *s, size_t fields)
 {
-	/* TODO: skip first fields */
-	/* TODO: skip first chars */
+	while (fields-- > 0) {
+		if (*s == '\0') {
+			break;
+		}
+
+		while (*s && !isblank(*s)) {
+			s++;
+		}
+
+		while (*s && isblank(*s)) {
+			s++;
+		}
+	}
+	return (char*)s;
+}
+
+static char *skip_chars(const char *s, size_t chars)
+{
+	while (chars-- > 0) {
+		if (*s == '\0') {
+			break;
+		}
+		s++;
+	}
+	return (char*)s;
+}
+
+static int are_duplicates(const char *s1, const char *s2, size_t fields, size_t chars)
+{
+	s1 = skip_fields(s1, fields);
+	s2 = skip_fields(s2, fields);
+
+	s1 = skip_chars(s1, chars);
+	s2 = skip_chars(s2, chars);
+
 	return strcmp(s1, s2) == 0;
 }
 
